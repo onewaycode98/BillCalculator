@@ -21,8 +21,8 @@ class _HomeScreenState extends State<HomeScreen> {
   int splitBetween = 2;
   bool showCursor = true;
   List<bool> isSelectedToggleButton = [false, false, false, false];
-
   var list = ToggleButton.tipsToCalculate;
+  bool _validate = false;
 
   void resetToggleButtons() {
     isSelectedToggleButton = [false, false, false, false];
@@ -166,6 +166,7 @@ class _HomeScreenState extends State<HomeScreen> {
                           onTap: () {
                             setState(() {
                               showCursor = true;
+                              _validate = false;
                             });
                           },
                           controller: amountValue,
@@ -178,6 +179,8 @@ class _HomeScreenState extends State<HomeScreen> {
                           cursorColor: kFirstColor,
                           showCursor: showCursor,
                           decoration: InputDecoration(
+                              errorText:
+                                  _validate ? 'Value can\'t be empty' : null,
                               hintStyle: TextStyle(color: Colors.grey.shade300),
                               counterText: '',
                               prefixIcon: Padding(
@@ -307,6 +310,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             tipTotalText = '--';
                             resetToggleButtons();
                             list.clear();
+                            _validate = false;
                           });
                         },
                         color: Colors.white,
@@ -329,6 +333,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         elevation: 0.3,
                         onPressed: () {
                           setState(() {
+                            amountValue.text.isEmpty
+                                ? _validate = true
+                                : _validate = false;
                             try {
                               Calculate calc = Calculate(
                                   billAmount: double.parse(amountValue.text),
