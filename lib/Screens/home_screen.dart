@@ -1,11 +1,14 @@
 import 'package:bill_calculator/colors.dart';
-import 'package:bill_calculator/widgets/clear_button.dart';
 import 'package:flutter/material.dart';
 import 'package:bill_calculator/style.dart';
 import 'package:bill_calculator/widgets/toggle_buttons.dart';
 import 'package:flutter/services.dart';
+import 'calculate.dart';
 
 class HomeScreen extends StatefulWidget {
+  int tip;
+  HomeScreen({this.tip});
+
   @override
   _HomeScreenState createState() => _HomeScreenState();
 }
@@ -16,8 +19,14 @@ class _HomeScreenState extends State<HomeScreen> {
   String tipEachText = '--';
   TextEditingController amountValue = TextEditingController();
   int splitBetween = 2;
-  int tip;
   bool showCursor = true;
+  List<bool> isSelectedToggleButton = [false, false, false, false];
+
+  var list = ToggleButton.tipsToCalculate;
+
+  void resetToggleButtons() {
+    isSelectedToggleButton = [false, false, false, false];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -41,33 +50,39 @@ class _HomeScreenState extends State<HomeScreen> {
                     color: kSecondColor,
                     borderRadius: BorderRadius.circular(10.0)),
                 child: Padding(
-                  padding: const EdgeInsets.only(left: 20.0, right: 20.0),
+                  padding: const EdgeInsets.only(left: 20.0, right: 0.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: <Widget>[
-                          Text(
-                            'Each Pay:',
-                            style: TextStyle(
-                                color: Colors.white,
-                                fontSize: 20.0,
-                                fontWeight: FontWeight.w700),
-                          ),
-                          Text(
-                            eachPayText,
-                            style: TextStyle(
-                                letterSpacing: 0,
-                                color: Colors.white,
-                                fontSize: 45.0,
-                                fontWeight: FontWeight.w300),
-                          ),
-                        ],
+                      Container(
+                        width: 130.0,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: <Widget>[
+                            Text(
+                              'Each Pay:',
+                              style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.w700),
+                            ),
+                            FittedBox(
+                              fit: BoxFit.fitWidth,
+                              child: Text(
+                                eachPayText,
+                                style: TextStyle(
+                                    letterSpacing: -3,
+                                    color: Colors.white,
+                                    fontSize: 40.0,
+                                    fontWeight: FontWeight.w300),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                       SizedBox(
-                        width: 30.0,
+                        width: 20.0,
                       ),
                       Container(
                         width: 200.0,
@@ -94,7 +109,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               ],
                             ),
                             SizedBox(
-                              width: 10.0,
+                              width: 5,
                             ),
                             Column(
                               mainAxisAlignment: MainAxisAlignment.center,
@@ -156,30 +171,31 @@ class _HomeScreenState extends State<HomeScreen> {
                           controller: amountValue,
                           maxLength: 6,
                           inputFormatters: [
-                            WhitelistingTextInputFormatter(RegExp("[,0-9]"))
+                            WhitelistingTextInputFormatter(RegExp("[.0-9]"))
                           ],
                           keyboardType:
                               TextInputType.numberWithOptions(decimal: true),
                           cursorColor: kFirstColor,
                           showCursor: showCursor,
                           decoration: InputDecoration(
+                              hintStyle: TextStyle(color: Colors.grey.shade300),
                               counterText: '',
-                              // contentPadding:
-                              //     EdgeInsets.symmetric(horizontal: 0),
                               prefixIcon: Padding(
-                                padding: EdgeInsets.all(15),
+                                padding: EdgeInsets.all(10),
                                 child: Text(
                                   '\$',
                                   style: TextStyle(
-                                      color: Colors.grey.shade400,
-                                      fontSize: 50.0),
+                                    color: Colors.grey.shade300,
+                                    fontSize: 50.0,
+                                  ),
                                 ),
                               ),
                               border: InputBorder.none,
-                              hintText: '16,214'),
+                              hintText: '197.90'),
                           style: TextStyle(
                               color: Colors.black87,
                               fontSize: 50.0,
+                              letterSpacing: -3,
                               fontWeight: FontWeight.w300),
                         ),
                         SizedBox(
@@ -203,7 +219,9 @@ class _HomeScreenState extends State<HomeScreen> {
                                     style: kTextStyleBoldDark,
                                   ),
                                   SizedBox(height: 15.0),
-                                  ToggleButton(),
+                                  ToggleButton(
+                                    isSelected: isSelectedToggleButton,
+                                  ),
                                 ],
                               ),
                             ),
@@ -252,7 +270,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               splitBetween.toString(),
                               style: TextStyle(
                                   letterSpacing: 0,
-                                  color: Colors.black87,
+                                  color: Colors.grey.shade600,
                                   fontSize: 34.0,
                                   fontWeight: FontWeight.w300),
                             ),
@@ -271,6 +289,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: <Widget>[
+                    //Clear Button
                     ButtonTheme(
                       minWidth: 182.0,
                       height: 50.0,
@@ -283,6 +302,11 @@ class _HomeScreenState extends State<HomeScreen> {
                             amountValue.clear();
                             splitBetween = 2;
                             showCursor = false;
+                            eachPayText = '--';
+                            tipEachText = '--';
+                            tipTotalText = '--';
+                            resetToggleButtons();
+                            list.clear();
                           });
                         },
                         color: Colors.white,
@@ -295,6 +319,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                       ),
                     ),
+                    //Calculate Button
                     ButtonTheme(
                       minWidth: 182.0,
                       height: 50.0,
@@ -303,7 +328,20 @@ class _HomeScreenState extends State<HomeScreen> {
                       child: RaisedButton(
                         elevation: 0.3,
                         onPressed: () {
-                          print(amountValue.text);
+                          setState(() {
+                            try {
+                              Calculate calc = Calculate(
+                                  billAmount: double.parse(amountValue.text),
+                                  splitBetween: splitBetween,
+                                  tip: list.last);
+                              eachPayText = calc.calculateBill().toString();
+                              tipTotalText =
+                                  calc.calculateTipTotal().toString();
+                              tipEachText = calc.calculateTipEach().toString();
+                            } catch (e) {
+                              list.add(0);
+                            }
+                          });
                         },
                         color: kFirstColor,
                         child: Text(

@@ -2,33 +2,42 @@ import 'package:flutter/material.dart';
 import 'package:bill_calculator/colors.dart';
 
 class ToggleButton extends StatefulWidget {
+  List<bool> isSelected;
+  static List<int> tipsToCalculate = [0];
+  // int tipsAmount;
+  ToggleButton({this.isSelected});
+
   @override
   _ToggleButtonState createState() => _ToggleButtonState();
 }
 
 class _ToggleButtonState extends State<ToggleButton> {
-  List<bool> isSelected = [false, false, false, false];
   List<int> amountTip = [0, 10, 15, 20];
   int indexButton;
   Color textColor = Colors.grey[400];
-  int tipAmount;
+  int tipsAmount;
 
   void selectedButtonsToggle(index) {
-    for (indexButton = 0; indexButton < isSelected.length; indexButton++) {
+    for (indexButton = 0;
+        indexButton < widget.isSelected.length;
+        indexButton++) {
       if (indexButton == index) {
-        isSelected[indexButton] = !isSelected[indexButton];
+        widget.isSelected[indexButton] = !widget.isSelected[indexButton];
         // return amountTip[index];
       } else {
-        isSelected[indexButton] = false;
+        widget.isSelected[indexButton] = false;
       }
     }
   }
 
-  int selectedTip(index) {
-    for (indexButton = 0; indexButton < isSelected.length; indexButton++) {
+  List<int> selectedTip(index) {
+    for (indexButton = 0;
+        indexButton < widget.isSelected.length;
+        indexButton++) {
       if (indexButton == index) {
-        tipAmount = amountTip[index];
-        return tipAmount;
+        tipsAmount = amountTip[index];
+        ToggleButton.tipsToCalculate.add(tipsAmount);
+        return ToggleButton.tipsToCalculate;
       }
     }
   }
@@ -43,7 +52,7 @@ class _ToggleButtonState extends State<ToggleButton> {
         selectedBorderColor: kFirstColor,
         color: Colors.grey.shade400,
         selectedColor: Colors.white,
-        isSelected: isSelected,
+        isSelected: widget.isSelected,
         borderWidth: 2.0,
         fillColor: kFirstColor,
         // focusNodes: focusToggle,
@@ -97,8 +106,6 @@ class _ToggleButtonState extends State<ToggleButton> {
           setState(() {
             selectedButtonsToggle(index);
             selectedTip(index);
-            print(tipAmount.toString());
-            // print(amountTip[index]);
           });
         },
       ),
